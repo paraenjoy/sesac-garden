@@ -1,5 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo, useState } from "react";
+import Pagination from "@/components/commons/pagination";
+import useDebouncedValue from "@/lib/use-debounced-value";
+import usePagination from "@/lib/use-pagination";
 import styles from "./styles.module.css";
 
 type ProductHistoryProps = {
@@ -33,6 +39,19 @@ const products = [
 export default function ProductHistory({ activeTab }: ProductHistoryProps) {
   // 같은 컴포넌트를 두 페이지에서 사용하고, 전달받은 값으로 화면만 바꿔요.
   const isMine = activeTab === "mine";
+  const [keyword, setKeyword] = useState("");
+  const debouncedKeyword = useDebouncedValue(keyword, 400);
+  const searchKeyword = debouncedKeyword.trim().toLowerCase();
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      if (searchKeyword === "") return true;
+      return product.title.toLowerCase().includes(searchKeyword);
+    });
+  }, [searchKeyword]);
+
+  const { currentPage, totalPages, pagedItems, goToPage, setCurrentPage } =
+    usePagination(filteredProducts, 6);
 
   return (
     <section>
@@ -52,6 +71,14 @@ export default function ProductHistory({ activeTab }: ProductHistoryProps) {
         <Image src="/icons/search.svg" alt="" width={18} height={18} />
         <input
           aria-label="상품 검색"
+          value={keyword}
+          onChange={(event) => {
+            setKeyword(event.target.value);
+            setCurrentPage(1);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.preventDefault();
+          }}
           placeholder="필요한 내용을 검색해 주세요."
         />
       </label>
@@ -71,7 +98,7 @@ export default function ProductHistory({ activeTab }: ProductHistoryProps) {
           {isMine && <span className={styles.deleteSpace} />}
         </div>
 
-        {products.map((product) => (
+        {pagedItems.map((product) => (
           <div className={styles.tableRow} key={product.id}>
             <span className={styles.number}>{product.id}</span>
             <span className={styles.productName}>
@@ -101,6 +128,12 @@ export default function ProductHistory({ activeTab }: ProductHistoryProps) {
           </div>
         ))}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+      />
     </section>
   );
 }

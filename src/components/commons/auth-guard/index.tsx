@@ -41,7 +41,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   }, [accessToken, client, error, router]);
 
   if (!data) {
-    return <main className={styles.loading}>로그인 정보를 확인하고 있어요.</main>;
+    return <main className={styles.loading}>로그인 상태를 확인하는 중입니다.</main>;
   }
 
   return children;

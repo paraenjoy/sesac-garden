@@ -22,7 +22,7 @@
 .featureCard {
   position: relative;
   width: 628px;
-  height: 628px;
+  height: clamp(49px, 32vw, 416px);
   overflow: hidden;
   border-radius: 18px;
   color: #ffffff;
@@ -40,7 +40,7 @@
 
 .featureImage {
   width: 100%;
-  height: 100%;
+  height: clamp(49px, 32vw, 416px);
   object-fit: cover;
 }
 
@@ -174,18 +174,12 @@
   background: transparent;
 }
 
-.searchButton,
 .sellButton {
   height: 48px;
   border: 0;
   border-radius: 8px;
   color: #ffffff;
   font-weight: 700;
-}
-
-.searchButton {
-  width: 68px;
-  background: #111111;
 }
 
 .sellButton {
@@ -219,6 +213,16 @@
   font-size: 14px;
 }
 
+.selectedCategory {
+  color: #111111;
+  font-weight: 700;
+}
+
+.selectedCategory img {
+  border-radius: 50%;
+  background: #eef4ff;
+}
+
 .category img {
   width: 40px;
   height: 40px;
@@ -228,6 +232,17 @@
   display: flex;
   flex-wrap: wrap;
   gap: 42px 32px;
+}
+
+.saleStateTitle {
+  margin: 0 0 18px;
+  font-size: 22px;
+}
+
+.emptyState {
+  margin: 28px 0 0;
+  color: #777777;
+  text-align: center;
 }
 
 .recentProducts {
@@ -264,8 +279,6 @@
 
   .featureCard {
     width: 50%;
-    height: auto;
-    aspect-ratio: 1;
   }
 
   .productList {
@@ -321,8 +334,7 @@
   }
 
   .searchBox {
-    width: calc(100% - 84px);
-    min-width: 0;
+    width: 100%;
   }
 
   .sellButton {

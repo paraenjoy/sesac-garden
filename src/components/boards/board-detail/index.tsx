@@ -33,7 +33,7 @@ export default function BoardDetail({ boardId }: BoardDetailProps) {
     ssr: false,
   });
 
-  if (loading) return <p className={styles.state}>게시글을 불러오고 있어요...</p>;
+  if (loading) return <p className={styles.state}>게시글을 불러오는 중입니다.</p>;
   if (error || !data) return <p className={styles.state}>게시글을 불러오지 못했어요.</p>;
 
   const board = data.fetchBoard;

@@ -1,0 +1,26 @@
+.pagination {
+  display: flex;
+  margin-top: 24px;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  color: #777777;
+  background: transparent;
+}
+
+.pagination .selected {
+  color: #111111;
+  background: #f2f2f2;
+  font-weight: 800;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
