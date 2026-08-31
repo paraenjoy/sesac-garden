@@ -1,6 +1,8 @@
 .main {
   display: flex;
+  height: 100vh;
   min-height: 100vh;
+  overflow: hidden;
   background: #ffffff;
 }
 
@@ -10,6 +12,7 @@
   padding: 40px;
   flex-shrink: 0;
   justify-content: center;
+  overflow-y: auto;
 }
 
 .formBox {
@@ -195,7 +198,8 @@
 }
 
 .picture {
-  min-height: 720px;
+  min-height: 100vh;
+  aspect-ratio: 5 / 4;
   flex: 1;
   background-image:
     linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)),
@@ -205,11 +209,17 @@
 }
 
 @media (max-width: 820px) {
+  .main {
+    height: auto;
+    overflow: visible;
+  }
+
   .formSide {
     width: 100%;
     padding-top: 80px;
     padding-right: 30px;
     padding-left: 30px;
+    overflow: visible;
   }
 
   .successModal {

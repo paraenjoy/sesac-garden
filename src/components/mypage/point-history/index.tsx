@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import Pagination from "@/components/commons/pagination";
+import usePagination from "@/lib/use-pagination";
 import styles from "./styles.module.css";
 
 type PointHistoryProps = {
@@ -97,7 +101,44 @@ const totalItems: TotalPointItem[] = [
 // 같은 디자인의 행을 열 개 그리기 위한 간단한 번호 배열이에요.
 const rowNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+const chargeItems = rowNumbers.map((number) => ({
+  id: number,
+  date: "2024.12.16",
+  paymentId: `abcd12${number}`,
+  amount: "+1,000,000",
+  balance: "1,222,000",
+}));
+
+const buyItems = rowNumbers.map((number) => ({
+  id: number,
+  date: "2024.12.16",
+  title: "파라다이스 호텔 제주",
+  amount: "-1,000,000",
+  balance: "1,222,000",
+  seller: "홍길동",
+}));
+
+const sellItems = rowNumbers.map((number) => ({
+  id: number,
+  date: "2024.12.16",
+  title: `파라다이스 호텔 제주 ${number}`,
+}));
+
 export default function PointHistory({ activeTab }: PointHistoryProps) {
+  const allPagination = usePagination(totalItems, 6);
+  const chargePagination = usePagination(chargeItems, 6);
+  const buyPagination = usePagination(buyItems, 6);
+  const sellPagination = usePagination(sellItems, 6);
+
+  const activePagination =
+    activeTab === "all"
+      ? allPagination
+      : activeTab === "charge"
+        ? chargePagination
+        : activeTab === "buy"
+          ? buyPagination
+          : sellPagination;
+
   return (
     <section>
       <nav className={styles.tabs}>
@@ -123,7 +164,7 @@ export default function PointHistory({ activeTab }: PointHistoryProps) {
               <span>잔액</span>
             </div>
 
-            {totalItems.map((item) => (
+            {allPagination.pagedItems.map((item) => (
               <div
                 className={`${styles.tableRow} ${styles.allColumns}`}
                 key={item.id}
@@ -155,15 +196,15 @@ export default function PointHistory({ activeTab }: PointHistoryProps) {
               <span>거래 후 잔액</span>
             </div>
 
-            {rowNumbers.map((number) => (
+            {chargePagination.pagedItems.map((item) => (
               <div
                 className={`${styles.tableRow} ${styles.chargeColumns}`}
-                key={number}
+                key={item.id}
               >
-                <span className={styles.date}>2024.12.16</span>
-                <span>abcd1243</span>
-                <span className={styles.plus}>+1,000,000</span>
-                <span>1,222,000</span>
+                <span className={styles.date}>{item.date}</span>
+                <span>{item.paymentId}</span>
+                <span className={styles.plus}>{item.amount}</span>
+                <span>{item.balance}</span>
               </div>
             ))}
           </>
@@ -180,16 +221,16 @@ export default function PointHistory({ activeTab }: PointHistoryProps) {
               <span>판매자</span>
             </div>
 
-            {rowNumbers.map((number) => (
+            {buyPagination.pagedItems.map((item) => (
               <div
                 className={`${styles.tableRow} ${styles.buyColumns}`}
-                key={number}
+                key={item.id}
               >
-                <span className={styles.date}>2024.12.16</span>
-                <span>파라다이스 호텔 제주</span>
-                <span className={styles.minus}>-1,000,000</span>
-                <span>1,222,000</span>
-                <span>홍길동</span>
+                <span className={styles.date}>{item.date}</span>
+                <span>{item.title}</span>
+                <span className={styles.minus}>{item.amount}</span>
+                <span>{item.balance}</span>
+                <span>{item.seller}</span>
               </div>
             ))}
           </>
@@ -203,29 +244,23 @@ export default function PointHistory({ activeTab }: PointHistoryProps) {
               <span>상품 명</span>
             </div>
 
-            {rowNumbers.map((number) => (
+            {sellPagination.pagedItems.map((item) => (
               <div
                 className={`${styles.tableRow} ${styles.twoColumns}`}
-                key={number}
+                key={item.id}
               >
-                <span className={styles.date}>2024.12.16</span>
-                <span>파라다이스 호텔 제주</span>
+                <span className={styles.date}>{item.date}</span>
+                <span>{item.title}</span>
               </div>
             ))}
           </>
         )}
 
-        <div className={styles.pagination}>
-          <button type="button">‹</button>
-          <button className={styles.currentPage} type="button">
-            1
-          </button>
-          <button type="button">2</button>
-          <button type="button">3</button>
-          <button type="button">4</button>
-          <button type="button">5</button>
-          <button type="button">›</button>
-        </div>
+        <Pagination
+          currentPage={activePagination.currentPage}
+          totalPages={activePagination.totalPages}
+          onPageChange={activePagination.goToPage}
+        />
       </div>
     </section>
   );

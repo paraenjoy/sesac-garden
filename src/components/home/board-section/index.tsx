@@ -4,8 +4,9 @@ import { useQuery } from "@apollo/client/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import type { FormEvent } from "react";
+import Pagination from "@/components/commons/pagination";
 import { FETCH_BOARDS } from "@/graphql/queries";
+import useDebouncedValue from "@/lib/use-debounced-value";
 import type { Board } from "@/types/board";
 import styles from "./styles.module.css";
 
@@ -20,27 +21,27 @@ const formatDate = (date: string) => date.slice(0, 10).replaceAll("-", ".");
 
 export default function BoardSection() {
   const [keyword, setKeyword] = useState("");
-  const { data, loading, error, refetch } = useQuery<{ fetchBoards: Board[] }>(
+  const debouncedKeyword = useDebouncedValue(keyword, 400);
+  const [currentPage, setCurrentPage] = useState(1);
+  const searchKeyword = debouncedKeyword.trim();
+
+  const { data, loading, error } = useQuery<{ fetchBoards: Board[] }>(
     FETCH_BOARDS,
     {
-      variables: { page: 1, search: "" },
+      variables: { page: currentPage, search: searchKeyword },
       // 이 Query는 브라우저 화면이 열린 뒤 실행해요.
       ssr: false,
     },
   );
 
   const boards = data?.fetchBoards ?? [];
+  const hasNextPage = boards.length === 10;
+  const totalPages = hasNextPage ? currentPage + 1 : currentPage;
   // 같은 게시글 목록에서 앞의 4개만 골라 위쪽 카드에 사용해요.
   const hotBoards = boards.slice(0, 4);
-  const displayedBoards = boards.slice(0, 10);
-
-  const onSubmitSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    refetch({ page: 1, search: keyword });
-  };
 
   if (loading)
-    return <p className={styles.state}>게시글을 불러오고 있어요...</p>;
+    return <p className={styles.state}>게시글을 불러오는 중입니다.</p>;
   if (error) return <p className={styles.state}>API 연결을 확인해주세요.</p>;
 
   return (
@@ -98,7 +99,7 @@ export default function BoardSection() {
         <h2>트립토크 게시판</h2>
 
         <div className={styles.tools}>
-          <form className={styles.search} onSubmit={onSubmitSearch}>
+          <div className={styles.search}>
             {/* 날짜 검색은 모양만 먼저 만들어요. */}
             <div className={styles.dateBox}>
               <Image src="/icons/calendar.svg" alt="" width={20} height={20} />
@@ -115,15 +116,17 @@ export default function BoardSection() {
               />
               <input
                 value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
+                onChange={(event) => {
+                  setKeyword(event.target.value);
+                  setCurrentPage(1);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") event.preventDefault();
+                }}
                 placeholder="제목을 검색해 주세요."
               />
             </label>
-
-            <button className={styles.searchButton} type="submit">
-              검색
-            </button>
-          </form>
+          </div>
 
           {/* 등록 화면의 기능은 없지만, 빈 페이지로 이동하는 것부터 연습해요. */}
           <Link className={styles.writeButton} href="/boards/new">
@@ -147,7 +150,7 @@ export default function BoardSection() {
             <span className={styles.deleteSpace} />
           </div>
 
-          {displayedBoards.map((board, index) => (
+          {boards.map((board, index) => (
             <div className={styles.row} key={board._id}>
               <span className={styles.number}>{243 - index}</span>
               <Link className={styles.titleCell} href={`/boards/${board._id}`}>
@@ -171,17 +174,11 @@ export default function BoardSection() {
             </div>
           ))}
 
-          <div className={styles.pagination}>
-            <button type="button">‹</button>
-            <button className={styles.selected} type="button">
-              1
-            </button>
-            <button type="button">2</button>
-            <button type="button">3</button>
-            <button type="button">4</button>
-            <button type="button">5</button>
-            <button type="button">›</button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
     </section>
